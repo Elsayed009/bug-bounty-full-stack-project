@@ -72,11 +72,6 @@ const login = async (req, res) =>{
 
 
 
-// 1. جيب الـ Token من الـ Cookie
-// 2. تحقق من الـ Token بـ jwt.verify
-// 3. جيب الـ id من جوا الـ Token
-// 4. دور على اليوزر في الـ database بالـ id ده
-// 5. ارجع بياناته
 
 // me endpoint
 const me = async(req, res)=>{
@@ -101,6 +96,8 @@ const me = async(req, res)=>{
 const logout = async (req, res) => {
     try{
         // const token = req.cookies.token; // i dont need it cause its already in the cookie
+
+        // refreash token
         res.clearCookie("token");
         res.status(200).json({msg: "logged out successfully"})
 
@@ -124,55 +121,3 @@ module.exports = {register, login, me, logout};
 
 
 
-// ليه اليوزر ايميل بيحتوي على المعلومات دي كلها9:28 PMسؤال ذكي! 😄
-
-// عشان User.findOne({email}) بترجع الـ document كامل من الـ database مش الـ email بس!
-// يعني:
-// javascript// إنت قلتله: دور على user عنده الـ email ده
-// const userEmail = await User.findOne({email});
-
-// // هو رجعلك: الـ user كامل بكل fields بتاعته
-// userEmail = {
-//     _id: "64f8a2b3...",
-//     name: "Ahmed",
-//     email: "ahmed@gmail.com",
-//     password: "$2b$10$xK9...",
-//     role: "hunter"
-// }
-// ```
-
-// ---
-
-// الـ `{email}` ده مش اللي بيرجع — ده شرط البحث:
-// ```
-// {email} ← "دور على user عنده الـ email ده"
-//          ← مش "جيبلي الـ email بس"
-// ```
-
-// زي ما تقول لحد:
-// ```
-// "دور على الشخص اللي اسمه Ahmed"
-// ← هيجيبلك الشخص كامل مش اسمه بس 😄
-
-
-
-
-
-
-// res.cookie("token", token, {
-//                 httpOnly: true,
-//                 maxAge: 7*24*60*60*1000
-//             });قولي هنا انت بتقوله ايه9:04 AMتمام! 😄
-// بتقوله:
-// "يا response — عمل Cookie اسمها token
-//  حط فيها قيمة الـ token
-//  وخليها httpOnly عشان JavaScript متسرقهاش
-//  وخليها تعيش 7 أيام"
-
-// يعني بالعربي البسيط:
-// res        → الـ response اللي رايحة للـ browser
-// .cookie()  → حط Cookie جوا الـ response دي
-// "token"    → اسم الـ Cookie
-// token      → القيمة اللي جوا الـ Cookie
-// httpOnly   → آمنها من السرقة
-// maxAge     → عمرها 7 أيام

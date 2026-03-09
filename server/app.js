@@ -1,3 +1,12 @@
+
+//  W1-BE-01 → Project Setup
+//  W1-BE-02 → User Model
+//  W1-BE-03 → Register
+//  W1-BE-04 → Login
+//  W1-BE-05 → Me + Logout
+
+
+
 require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
