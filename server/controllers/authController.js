@@ -23,7 +23,8 @@ const register = async (req, res) =>{
         const token = jwt.sign(
             { id: data._id, role: data.role },  
             secret,              
-            { expiresIn: "7d" }  )        
+            { expiresIn: "7d" }  )   
+            //refreshed token     
             res.cookie("token", token, {
                 httpOnly: true,
                 maxAge: 7*24*60*60*1000
@@ -73,7 +74,8 @@ const login = async (req, res) =>{
 
 
 
-// me endpoint
+// me endpoint 
+// getting the loged current user details
 const me = async(req, res)=>{
     try{
         const token= req.cookies.token;
