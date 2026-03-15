@@ -18,13 +18,23 @@ app.use(cors());
 app.use(cookie_parser());
 const dbconnection = require("./config/db");
 dbconnection();
-const PORT = process.env.PORT
+const PORT = process.env.PORT;
 
+//Routes
+
+// aut linking
 const authRoutes = require("./routes/authRoutes");
-app.use("/auth", authRoutes)
+app.use("/auth", authRoutes);
+// company router linking
 const companyRoutes = require("./routes/companyProfileRoutes")
 app.use("/company", companyRoutes)
+// hunter router linking
+const hunterRoutes = require("./routes/hunterRoutes");
+app.use("/hunter", hunterRoutes);
 
+
+
+// run port app
 app.listen(PORT, () => {
   console.log(`Server running at port ${PORT}`);
 });

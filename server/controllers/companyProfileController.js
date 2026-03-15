@@ -43,11 +43,11 @@ const getProfile = async (req, res) => {
             //search for profileData
             const profileData = await CompanyPorfile.findOne({userId});
             if (!profileData) return res.status(404).json({msg: "user not founded"});
-            const updatedProfile = await CompanyPorfile.findOneAndUpdate(
+            const profileUpdated  = await CompanyPorfile.findOneAndUpdate(
                 // arguments(3): 1 filter, 2 the updated data, the option arrg must be true to save the updated data and return it
-                 {userId}, {comName, description, website}, {new: true} 
+                 {userId}, {$set:{comName, description, website}}, {new: true} 
                 );
-            res.status(200).json({msg: "profile updated", data: updatedProfile});
+            res.status(200).json({msg: "profile updated", data: profileUpdated});
         }catch(err){
          res.status(500).json({ msg: "server down", details: err.message }); 
         }
@@ -62,7 +62,7 @@ const getProfile = async (req, res) => {
             if(!profileData) return res.status(404).json({msg: 'user not founded'});
              await CompanyPorfile.findOneAndDelete({userId})// it take on arrg the deleted target id 
              // with out a var cause we dont need anything to be returned we just delete
-            res.status(200).json({msg: "user deleted"})
+            res.status(200).json({msg: " profile deleted"})
         }catch(err){
          res.status(500).json({ msg: "server down", details: err.message }); 
         }
