@@ -22,8 +22,8 @@ const PORT = process.env.PORT
 
 const authRoutes = require("./routes/authRoutes");
 app.use("/auth", authRoutes)
-
-
+const companyRoutes = require("./routes/companyProfileRoutes")
+app.use("/company", companyRoutes)
 
 app.listen(PORT, () => {
   console.log(`Server running at port ${PORT}`);
