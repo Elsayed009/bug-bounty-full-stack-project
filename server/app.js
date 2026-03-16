@@ -31,8 +31,9 @@ app.use("/company", companyRoutes)
 // hunter router linking
 const hunterRoutes = require("./routes/hunterRoutes");
 app.use("/hunter", hunterRoutes);
-
-
+//program
+const programRoutes = require("./routes/programRoutes");
+app.use("/programs", programRoutes)
 
 // run port app
 app.listen(PORT, () => {
