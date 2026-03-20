@@ -12,12 +12,12 @@ const UserSchema = new mongoose.Schema({
     password: {
         type: String,
         required: true,
-        unique: true
+        // unique: true  // never do this again cause every profile you will do will be saved as a hunter not company or admin
     },
     role: {
         type: String,
         enum: ["admin", "company", "hunter"],
-        default: "hunter"
+        required:true
     },
     isVerified: {
         type: Boolean,

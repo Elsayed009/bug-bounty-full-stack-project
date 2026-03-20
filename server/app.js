@@ -32,6 +32,9 @@ app.use("/hunter", hunterRoutes);
 //program
 const programRoutes = require("./routes/programRoutes");
 app.use("/programs", programRoutes)
+// report
+const reportRoutes = require("./routes/reportRoutes");
+app.use("/reports", reportRoutes);
 
 // run port app
 app.listen(PORT, () => {

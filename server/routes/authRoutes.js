@@ -15,7 +15,11 @@
 
 
 
-
+// ✅ W1 — Auth System (Register, Login, Me, Logout)
+// ✅ W2 — CompanyProfile CRUD
+// ✅ W2 — HunterProfile CRUD
+// ✅ W2 — Program CRUD
+// ✅ W2 — Report (Create, GetAll, GetOne, CompanyUpdate, HunterUpdate)
 
 
 

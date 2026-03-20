@@ -15,7 +15,7 @@ const createReport = async (req, res) =>{
         const programId = req.params.id;
         const hunterData = await HunterProfile.findOne({userId: hunterId});
         if(!hunterData) return res.status(404).json({msg: "no hunter found"})
-        const programData = await Program.findOne({programId});
+        const programData = await Program.findById(programId);
         if(!programData) return res.status(404).json({msg: "no program found"})
         const report = await Report.create({
             title, description, severity, proofUrl, hunterId, programId
@@ -32,7 +32,30 @@ const createReport = async (req, res) =>{
 
 const getReports = async (req, res) =>{
     try{
-
+        //Frontend flow:
+        // fornt end side  user is stand on the programs page that provided by the url: "https://localhost:5000/reports"
+        // he clicke on ux/ui report bouton for a spacivic program
+        // that program holds an id :id for itself, 
+        // so on the click eventlistener send the url contained the :id for the choosen program,
+        //  and the url gose to :  "https://localhost:5000/reports/report/${program._id}"
+        //now we are selecting this id by the params method and sending it to the back side,
+        //  so we could get all reports for this spacivic program
+        const programId = req.params.id;
+        // go to the Reports collection
+        // search in all documents
+        //  find every document that has programId field = "PROG123" 
+        //  return all of them in an Array
+        //like mysql: SELECT * FROM reports WHERE programId = "PROG123"
+        //          يعني انت تقصد ان من غير الأقواس بقوله روح دور على فيلد اسمه PROG123
+        // مش دور على فيلد اسمه programId بيحمل قيمةPROG123
+        // فلما يروح الكوليكشن مش هيلاقي اي فيلد في اي دكيومنت اسمه PROG123
+        // فهيرجعلنا نل
+        const allReportes = await Report.find({programId});
+        //check if allReports arry has no reports return no reportes founded
+        if(allReportes.length===0 ) return res.status(404).json({msg: "no reportes founded"});
+        // === for more savety compare data type and value
+        //no thing to be done we just return all data founded 
+        res.status(200).json({msg: "reportes founded", data: allReportes});
     }catch(err){
         errHandler(res, err);
     };
@@ -43,6 +66,20 @@ const getReports = async (req, res) =>{
 
 const getReport = async (req, res) =>{
     try{
+        // now user stands on allreports page, he is selcting one report
+        // so path is: "https://localhost:5000/reports/report" all reports
+        // on click on one report url gose to:"https://localhost:5000/reports/report/${report._id}"
+        const reportId = req.params.id;
+        // now we get the report id, after that we need to get the data of this selected id report
+        const reportData = await Report.findOne({_id: reportId});
+        //   go to the Reports collection
+        //  find the document that has a field called _id = "REPORT123"
+        //  return all the data inside that document
+        // store it in a variable called reportData
+        // in mysql: SELECT * FROM reports WHERE _id = "REPORT123"
+        // so we can send it back to the Frontend in the response
+        if(!reportData) return res.status(404).json({msg: "not found"});
+        res.status(200).json({msg: "report founded", data: reportData});
 
     }catch(err){
         errHandler(res, err);
@@ -51,308 +88,146 @@ const getReport = async (req, res) =>{
 
 // updateReport endpoint
 
-const updateReport = async (req, res) =>{
+const companyUpdateReport = async (req, res) =>{
     try{
-
+        // now user stands on allreports page, he is selcting one report
+        // so path is: "https://localhost:5000/reports/report" all reports
+        // on click on one report url gose to:"https://localhost:5000/reports/report/${report._id}"
+        const reportId = req.params.id;
+        // get the status from the req body to be updated
+        const {status}= req.body;
+        //check status
+        if(status!== "accepted" && status !== "rejected") return res.status(400).json({msg: "invalid status"});
+        const reportData = await Report.findOne({_id: reportId});
+        //check data of report
+        if(!reportData) return res.status(404).json({msg: "not found"});
+        //update report status by the company for the hunter
+        const updatedReport= await Report.findByIdAndUpdate(reportId, {$set: {status}}, {new: true});
+        // return the result
+        res.status(200).json({msg: "report updated", data: updatedReport});
     }catch(err){
         errHandler(res, err);
     };
 };
+const hunterUpdateReport = async (req, res)=>{
+    try{
+        const reportId = req.params.id;
+        const hunterId = req.userData.id
+        const {title, description, severity, proofUrl} = req.body;
+        //check for data camed right
+        if (!title ||!description ||!severity ||!proofUrl) return res.status(400).json({msg: "all fields r required"});
+        const reportData = await Report.findById(reportId);
+        //check that we get all data form the report including the hunter id
+        if(!reportData) return res.status(404).json({msg: "not found"});
+        // check about the hunter that he own the report
+        if(reportData.hunterId.toString() !== hunterId) return res.status(403).json({msg: "you r not authorized"});
+        // update the data
+        const updateReport = await Report.findByIdAndUpdate(reportId, {$set: {title, description, severity, proofUrl}}, {new: true});
+        //return the result
+        res.status(200).json({msg: "report updated hunter side", data: updateReport});
+    }catch(err){
+        errHandler(res, err);
+    };
+}
 
 module.exports= {
     createReport,
     getReport,
     getReports,
-    updateReport
+    companyUpdateReport,
+    hunterUpdateReport,
+    
 };
 
 
 
 
+// MongoDB          MySQL
+// ━━━━━━━━━━━━━━━━━━━━━━
+// collection   →  table (جدول)
+// document     →  row (صف)
+// field        →  column (عمود)
+// _id          →  PRIMARY KEY
 
 
-// يعني انا هنا بقوله ايه؟12:58 PMبتقوله:
-// روح الـ HunterProfiles collection
-// ← دور على document عنده userId = "USER123"
-// ← يعني الـ Profile بتاع الـ Hunter ده
 
 
-// عشان في الـ HunterProfile Model:
-// userId: { type: ObjectId, ref: "User" }
-//  ↑
-// الـ field اسمه userId مش hunterId
+// findOne({_id: reportId})  // ✅ زي findById بالظبط
+// findById(reportId)        // ✅ نفس الحاجة بس أقصر
+
+
+// ليه نقطتين مش سلاش2:02 PMتمام! 
+// عشان الـ URL عنده شكل محدد:
+// protocol  ://  host  :  port  /  path
+// https     ://  localhost : 5000 / reports
+// يعني:
+// ://  ← فاصل بين الـ protocol والـ host
+// :    ← فاصل بين الـ host والـ port
+// /    ← فاصل بين الـ port والـ path
+// لو كتبت / بدل ::
+// https://localhost/5000/reports
+// ← بتقوله: روح host اسمه localhost
+// ← وجيبلي path اسمه 5000/reports
+// ← مش هيلاقي حاجة 
+// لو كتبت ::
+// https://localhost:5000/reports
+// ← بتقوله: روح host اسمه localhost
+// ← على port رقم 5000
+// ← وجيبلي path اسمه reports 
+
+
+
+
+
+
+
+
+
+
+
+// "https://localhost:5000/reports/report/${program._id}"
+// هنا في جانب الباك اند انا بقوله ايه 
+// يعني انا بقوله مثلا روح الهوست ده البورت اللي رقمه 5000
+// روح الأب دوت جي اس
+// هتلاقي هناك ايه؟ بينادي على روت ايه ولا بيستخدم روت ايه 
+// مكتوب فيه انك لما تبعت باث اسمخ ريبورتس 
+// تروح الروات اللي متصدر منه دالة اسمها ريبورتس 
+// فعل الدالة اللي جواه 
+// اللي لما هتشوفه هتروح كنترولر اسمه ريبورت جوها دالة اسمها ريبورت 
+// شغالها وهي جوها كود هيجبلك الأيدي ولا أي؟
+// فهمني الحتة دي بشرحك انت كدا لو فاهمني
+
+// Show less
+// 2:11 PM
+// تمام! 😄
+
+// الصورة الكاملة:
+
+// https://localhost:5000/reports/report/PROG123
+//          ↓              ↓       ↓      ↓
+//       app.js         app.js  router  req.params.id
+// خطوة خطوة:
+
+// 1. app.js:
+
+// app.use("/reports", reportRoutes)
+// // ← لو الـ URL بيبدأ بـ /reports
+// // ← ابعته لـ reportRoutes
+// 2. reportRoutes.js:
+
+// router.get("/report/:id", verifyToken, getReports)
+// // ← لو جه GET على /report/:id
+// // ← ابعته لـ getReports
+// 3. getReports في reportController.js:
+
+// const programId = req.params.id; // = "PROG123"
+// const allReports = await Report.find({programId});
 // ```
+
+// ---
 
 // يعني:
 // ```
-// hunterId = "USER123"  ← ده الـ User._id
-// findOne({userId: hunterId}) ← دور على Profile عنده userId = "USER123"
-
-
-// تتبع دورة حياة الـ id
-//  حتى الاندبوينت الحالي
-
-
-// 1. POST /auth/register
-//    Request:
-//    { "name": "Ahmed", "email": "hunter@gmail.com", 
-//      "password": "123456", "role": "hunter" }
-   
-//    MongoDB بيعمل:
-//    { _id: "USER123", name: "Ahmed", role: "hunter", ... }
-   
-//    Response:
-//    { "msg": "data created successfully" }
-//    + Cookie: token=eyJ... 
-//      ← جوا الـ Token: { id: "USER123", role: "hunter" }
-
-// ━━━━━━━━━━━━━━━━━━━━━━
-
-// 2. POST /auth/login
-//    Request:
-//    { "email": "hunter@gmail.com", "password": "123456" }
-   
-//    Response:
-//    { "msg": "logged in successfully" }
-//    + Cookie: token=eyJ...
-//      ← جوا الـ Token: { id: "USER123", role: "hunter" }
-//      ← نفس الـ USER123 اللي اتعمل في الـ register
-
-// ━━━━━━━━━━━━━━━━━━━━━━
-
-// 3. POST /hunter/profile
-//    Request:
-//    Cookie: token=eyJ...  ← فيه { id: "USER123" }
-//    { "nickName": "hacker01", "skills": ["js"], "bio": "..." }
-   
-//    verifyToken:
-//    ← فتحت الـ Token
-//    ← req.userData = { id: "USER123", role: "hunter" }
-   
-//    MongoDB بيعمل:
-//    { _id: "PROFILE123", userId: "USER123", nickName: "hacker01", ... }
-//    ←                    ↑
-//    ←              ربطه بـ USER123
-
-//    Response:
-//    { "msg": "user created", 
-//      "data": { _id: "PROFILE123", userId: "USER123", ... } }
-
-// ━━━━━━━━━━━━━━━━━━━━━━
-
-// 4. POST /reports/program/PROGRAM123
-//    Request:
-//    Cookie: token=eyJ...  ← فيه { id: "USER123" }
-//    { "title": "XSS Bug", "description": "...", 
-//      "severity": "high", "proofUrl": "..." }
-   
-//    verifyToken:
-//    ← req.userData = { id: "USER123", role: "hunter" }
-   
-//    Controller:
-//    ← hunterId = req.userData.id = "USER123"
-//    ← programId = req.params.id = "PROGRAM123"
-   
-//    MongoDB بيعمل:
-//    { _id: "REPORT123", 
-//      hunterId: "USER123",    ← نفس الـ USER123 من البداية
-//      programId: "PROGRAM123",
-//      status: "pending",
-//      ... }
-
-//    Response:
-//    { "msg": "report created",
-//      "data": { _id: "REPORT123", hunterId: "USER123", ... } }
-
-
-
-// المرحلة 1: Register
-// ━━━━━━━━━━━━━━━━━━━━━━
-// مين أنشأ الـ ID؟
-// ← MongoDB أنشأ _id: "USER123" أوتوماتيك
-
-// ليه؟
-// ← عشان يميز كل يوزر عن التاني
-// ← زي رقم قومي
-
-// لو معملناهوش؟
-// ← مش هنعرف نفرق بين Ahmed و Mohamed
-
-// ━━━━━━━━━━━━━━━━━━━━━━
-
-// المرحلة 2: Token
-// ━━━━━━━━━━━━━━━━━━━━━━
-// مين أنشأه؟
-// ← إحنا أنشأناه في authController:
-//   jwt.sign({ id: "USER123", role: "hunter" })
-
-// ليه حطينا USER123 جواه؟
-// ← عشان في أي request جاي بعدين
-// ← نعرف مين اللي بعته من غير ما يقولنا
-
-// لو معملناهوش؟
-// ← كل request هيبقى مجهول
-// ← مش هنعرف مين بيعمل إيه
-
-// ━━━━━━━━━━━━━━━━━━━━━━
-
-// المرحلة 3: HunterProfile
-// ━━━━━━━━━━━━━━━━━━━━━━
-// مين أنشأ الـ userId جوا الـ Profile؟
-// ← إحنا حطيناه من req.userData.id
-
-// ليه جبناه من userData مش من غيره؟
-// ← عشان هو موجود في الـ Token
-// ← مش محتاج نروح الـ database عشان نجيبه
-
-// ليه من UserSchema مش من HunterProfileSchema؟
-// ← عشان الـ Token فيه User._id مش HunterProfile._id
-// ← ده اللي اتعمل وقت الـ login
-
-// لو معملناهوش؟
-// ← الـ Profile هيتحفظ من غير ما يكون مربوط بأي User
-// ← مش هنعرف ده بتاع مين
-
-// ━━━━━━━━━━━━━━━━━━━━━━
-
-// المرحلة 4: Report
-// ━━━━━━━━━━━━━━━━━━━━━━
-// مين أنشأ الـ hunterId؟
-// ← إحنا حطيناه من req.userData.id
-
-// ليه نفس الـ USER123 اللي من البداية؟
-// ← عشان ده هو الـ Hunter نفسه
-// ← مش محتاج نعمل حاجة جديدة
-
-// ليه مش من HunterProfile._id؟
-// ← ممكن نعمله كده بس:
-//    ← هيحتاج query زيادة للـ database
-//    ← والـ USER123 كافي عشان نعرف مين الـ Hunter
-
-// لو معملناهوش؟
-// ← الـ Report هيتحفظ من غير ما نعرف مين بعته
-// ← مش هنقدر نديه الـ reputation بعدين
-
-
-
-
-
-// المرحلة 1: Register
-// ━━━━━━━━━━━━━━━━━━━━━━
-// الكود:
-// const data = await User.create({name, email, password: hashedPassword});
-
-// بقوله إيه؟
-// ← روح الـ Users collection في الـ database
-// ← عمل document جديد فيه الداتا دي
-// ← وارجعلي الـ document اللي اتعمل في data
-
-// MongoDB بيرجع:
-// { _id: "USER123", name: "Ahmed", email: "...", ... }
-// ← الـ _id اتعمل أوتوماتيك
-
-// ━━━━━━━━━━━━━━━━━━━━━━
-
-// المرحلة 2: Token
-// ━━━━━━━━━━━━━━━━━━━━━━
-// الكود:
-// const token = jwt.sign(
-//     { id: data._id, role: data.role },
-//     secret,
-//     { expiresIn: "7d" }
-// )
-
-// بقوله إيه؟
-// ← خد الداتا دي { id: "USER123", role: "hunter" }
-// ← حطها جوا Token مشفر
-// ← المفتاح بتاعه هو الـ secret
-// ← وخليه يتنتهي بعد 7 أيام
-
-// الكود:
-// res.cookie("token", token, { httpOnly: true })
-
-// بقوله إيه؟
-// ← احفظ الـ Token ده في Cookie
-// ← اسمها "token"
-// ← ومتسمحش لـ JavaScript تقراها
-
-// ━━━━━━━━━━━━━━━━━━━━━━
-
-// المرحلة 3: HunterProfile
-// ━━━━━━━━━━━━━━━━━━━━━━
-// الكود:
-// const userId = req.userData.id;
-
-// بقوله إيه؟
-// ← جيبلي الـ id اللي جوا الـ Token
-// ← اللي verifyToken حطه في req.userData
-// ← ده هو USER123
-
-// الكود:
-// const profile = await HunterProfile.create({
-//     nickName, skills, bio, userId
-// });
-
-// بقوله إيه؟
-// ← روح الـ HunterProfiles collection
-// ← عمل document جديد
-// ← وربطه بـ USER123 عشان نعرف ده بتاع مين
-
-// ━━━━━━━━━━━━━━━━━━━━━━
-
-// المرحلة 4: Report
-// ━━━━━━━━━━━━━━━━━━━━━━
-// الكود:
-// const hunterId = req.userData.id;
-
-// بقوله إيه؟
-// ← جيبلي الـ id اللي جوا الـ Token
-// ← ده نفس USER123 من البداية
-// ← مش محتاج أدور عليه في الـ database
-
-// الكود:
-// const programId = req.params.id;
-
-// بقوله إيه؟
-// ← جيبلي الـ id اللي في الـ URL
-// ← ده هو البرنامج اللي الـ Hunter عايز يبعت عليه Report
-
-// الكود:
-// const report = await Report.create({
-//     title, description, severity, proofUrl,
-//     hunterId, programId
-// });
-
-// بقوله إيه؟
-// ← روح الـ Reports collection
-// ← عمل document جديد
-// ← اربطه بالـ Hunter بالـ hunterId
-// ← واربطه بالـ Program بالـ programId
-// ← والـ status هيبدأ بـ "pending" أوتوماتيك
-
-
-
-// الخلاصة
-
-// حلو بالمباديء دي كلها عايز اعرف احنا لما اخترنا نجيب الهانتر اي دي في الكود من اليوزر داتا 
-// اشرحلي بقى بنقوله ايه واي الدنيا لو انت فاهمني
-
-
-// const hunterId = req.userData.id;
-// بنقوله:
-
-// روح الـ request
-// ← جيبلي الـ userData اللي verifyToken حطاه
-// ← وجيبلي منه الـ id
-// ← ده هو USER123 اللي:
-//    - MongoDB عمله وقت Register
-//    - اتحفظ في الـ Token وقت Login
-//    - verifyToken طلعه من الـ Token دلوقتي
-// يعني بسطر واحد:
-
-// بنقوله: "جيبلي هوية اليوزر اللي بعت الـ Request ده"
-// من غير ما:
-
-// ❌ نطلب منه يكتب الـ ID
-// ❌ ندور عليه في الـ database
-// ❌ نعمل أي حاجة زيادة
+// /reports        ← app.js بيشوفه
+// /report/PROG123 ← router بيشوفه
+// :id = PROG123   ← Controller بيجيبه

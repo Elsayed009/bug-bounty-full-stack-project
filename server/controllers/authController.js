@@ -9,7 +9,7 @@ const secret = process.env.JWT_SECRET
 const register = async (req, res) =>{
     try{
         // get data from body
-        const {name, email,password } = req.body;
+        const {name, email,password, role } = req.body;
         // check if its a new user or not
         const userEmail = await User.findOne({email});
         if(userEmail) return res.status(400).json({msg: "email already exists"});
@@ -18,7 +18,7 @@ const register = async (req, res) =>{
         // const hashedPassword = bcrypt.hash(password, 10);
         const hashedPassword = await bcrypt.hash(password, cryptSalt);
         // const data = await User.create({name(create this field and its name is name):name(the value of the name field taken from req.body or any other way like the hashed password), email: email, password: hashedPassword});
-        const data = await User.create({name, email, password: hashedPassword});
+        const data = await User.create({name, email, password: hashedPassword, role});
         //token
         const token = jwt.sign(
             { id: data._id, role: data.role },  
