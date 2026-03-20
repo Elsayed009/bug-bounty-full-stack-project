@@ -73,28 +73,3 @@ module.exports= {
 
 
 
-
-
-
-
-//  cammandes
-// getProfile:
-// 1. جيب userId من req.userData.id
-// 2. دور على الـ Profile بالـ userId
-// 3. لو مش موجود → 404
-// 4. رجّع البيانات → 200
-
-// updateProfile:
-// 1. جيب nickName, bio, skills من req.body
-//    جيب userId من req.userData.id
-// 2. دور على الـ Profile بالـ userId
-// 3. لو مش موجود → 404
-// 4. عدّل بـ findOneAndUpdate + {new: true}
-// 5. رجّع البيانات → 200
-
-// deleteProfile:
-// 1. جيب userId من req.userData.id
-// 2. دور على الـ Profile بالـ userId
-// 3. لو مش موجود → 404
-// 4. احذف بـ findOneAndDelete
-// 5. رجّع → 200

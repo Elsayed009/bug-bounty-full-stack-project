@@ -31,12 +31,3 @@ verified: {
 
 const HunterProfile = mongoose.model("HunterProfile", HunterProfileSchema);
 module.exports = HunterProfile;
-
-// : هنا بتقوله حاجتين : 
-// 1. mongoose.model("HunterProfile", HunterProfileSchema)
-//    ← اعمل Model اسمه "HunterProfile"
-//    ← وشكله زي الـ HunterProfileSchema
-
-// 2. module.exports = HunterProfile
-//    ← خلي الملف ده يصدّر الـ Model
-//    ← عشان أي ملف تاني يعمل require ويستخدمه
