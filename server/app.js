@@ -29,12 +29,20 @@ app.use("/company", companyRoutes)
 // hunter router linking
 const hunterRoutes = require("./routes/hunterRoutes");
 app.use("/hunter", hunterRoutes);
-//program
+//program router linking
 const programRoutes = require("./routes/programRoutes");
 app.use("/programs", programRoutes)
-// report
+// report router linking
 const reportRoutes = require("./routes/reportRoutes");
 app.use("/reports", reportRoutes);
+//admin router linking
+const adminRoutes = require("./routes/adminRoutes");
+app.use("/admin", adminRoutes);
+
+
+
+
+
 
 // run port app
 app.listen(PORT, () => {

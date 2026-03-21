@@ -103,6 +103,20 @@ const companyUpdateReport = async (req, res) =>{
         if(!reportData) return res.status(404).json({msg: "not found"});
         //update report status by the company for the hunter
         const updatedReport= await Report.findByIdAndUpdate(reportId, {$set: {status}}, {new: true});
+                // لو الـ status اتغير لـ "accepted" → زود reputation للـ Hunter
+        if(status === "accepted") {
+            const points = {
+                low: 10,
+                medium: 25,
+                high: 50,
+                critical: 100
+            };
+            await HunterProfile.findOneAndUpdate(
+                {userId: reportData.hunterId},
+                {$inc: {reputation: points[reportData.severity]}} // we used inc here cause we need to increament the hunter raputation
+                // if we used set it will overwrite the score of the hunter to the static given value (50) 0r (100) etc..
+            );
+        }
         // return the result
         res.status(200).json({msg: "report updated", data: updatedReport});
     }catch(err){
