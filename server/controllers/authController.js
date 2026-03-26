@@ -28,6 +28,8 @@ const register = async (req, res) =>{
             res.cookie("token", token, {
                 httpOnly: true,
                 maxAge: 7*24*60*60*1000
+                // secure: process.env.NODE_ENV === 'production', // true in production, false in local
+                // sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
             });
             res.status(201).json({msg: "data created seccussfuly", data: token})
     }catch(err){
@@ -60,7 +62,10 @@ const login = async (req, res) =>{
             res.cookie("token", token, {
                 httpOnly: true,
                 maxAge: 7*24*60*60*1000
+                // secure: process.env.NODE_ENV === 'production', // true in production, false in local
+                // sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
             });
+            // const userWithoutPassword = await User.findById(allUserDetails._id).select("-password");
             res.status(200).json({ msg: "logged in successfully" });
     }catch(err){
         
@@ -82,6 +87,10 @@ const me = async(req, res)=>{
         const decoded = jwt.verify(token, secret); // decoded store the payload
          // token from line above, secret that what we get from .env
         // const userData = User.findById(decoded.id);
+        // check token?
+        if(!token) {
+            return res.status(401).json({ msg: "no token,u r not authraized" });
+        }
         const userData = await User.findById(decoded.id).select("-password"); // remove password from the res
         // send user data in the res as json
         res.status(200).json({msg: "user data:", data: userData});
