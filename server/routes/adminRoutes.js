@@ -2,6 +2,11 @@
 
 const express = require("express");
 const router = express.Router();
+// call the peaceKeeper
+// const isAdmin = require('../middlewares/isAdmin'); 
+// router.use(isAdmin);
+
+
 const {verifyToken, verifyRole} = require("../middleware/auth.middleware");
 const {
     getAllCompanies,
