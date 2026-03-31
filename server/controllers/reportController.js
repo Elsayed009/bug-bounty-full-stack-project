@@ -113,7 +113,7 @@ const companyUpdateReport = async (req, res) =>{
             };
             await HunterProfile.findOneAndUpdate(
                 {userId: reportData.hunterId},
-                {$inc: {reputation: points[reportData.severity]}} // we used inc here cause we need to increament the hunter raputation
+                {$inc: {reputation: points[reportData.severity]|| 0}} // we used inc here cause we need to increament the hunter raputation
                 // if we used set it will overwrite the score of the hunter to the static given value (50) 0r (100) etc..
             );
         }

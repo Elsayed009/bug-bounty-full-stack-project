@@ -1,5 +1,5 @@
 // first we need the model to deal with the database:
-const CompanyPorfile = require("../models/CompanyProfile");
+const CompanyProfile = require("../models/CompanyProfile");
 // curd HTTP Methods REST API
 
 //  createProfile endpoint
@@ -7,10 +7,10 @@ const createProfile = async (req, res)=>{
     try{
         const {description, comName, website} = req.body;
         const userId = req.userData.id;
-        const existingProfile = await CompanyPorfile.findOne({userId}) // search for profile data by userId
+        const existingProfile = await CompanyProfile.findOne({userId}) // search for profile data by userId
         if(existingProfile) return res.status(400).json({msg: "profile already exists"});
         // create user data email
-        const data = await CompanyPorfile.create({comName, website, description, userId})
+        const data = await CompanyProfile.create({comName, website, description, userId})
         res.status(201).json({msg: "done", data: data});
     }catch(err){
         console.log(err.message);
@@ -26,7 +26,7 @@ const getProfile = async (req, res) => {
                 // const {description, comName, website} = req.body; no use for it case user dosnt send any data  
         const userId = req.userData.id; // get the profile
         // check
-        const profileData = await CompanyPorfile.findOne({userId});
+        const profileData = await CompanyProfile.findOne({userId});
         if(!profileData) return res.status(404).json({msg: "user not found"})
             res.status(200).json({msg: "data founded", data: profileData});
         }catch(err){
@@ -41,9 +41,9 @@ const getProfile = async (req, res) => {
             const {comName, description, website,} = req.body;
             const userId = req.userData.id;
             //search for profileData
-            const profileData = await CompanyPorfile.findOne({userId});
+            const profileData = await CompanyProfile.findOne({userId});
             if (!profileData) return res.status(404).json({msg: "user not founded"});
-            const profileUpdated  = await CompanyPorfile.findOneAndUpdate(
+            const profileUpdated  = await CompanyProfile.findOneAndUpdate(
                 // arguments(3): 1 filter, 2 the updated data, the option arrg must be true to save the updated data and return it
                  {userId}, {$set:{comName, description, website}}, {new: true} 
                 );
@@ -58,9 +58,9 @@ const getProfile = async (req, res) => {
         try{
             const userId = req.userData.id
             // get profile data for check
-            const profileData = await CompanyPorfile.findOne({userId});
+            const profileData = await CompanyProfile.findOne({userId});
             if(!profileData) return res.status(404).json({msg: 'user not founded'});
-             await CompanyPorfile.findOneAndDelete({userId})// it take on arrg the deleted target id 
+             await CompanyProfile.findOneAndDelete({userId})// it take on arrg the deleted target id 
              // with out a var cause we dont need anything to be returned we just delete
             res.status(200).json({msg: " profile deleted"})
         }catch(err){

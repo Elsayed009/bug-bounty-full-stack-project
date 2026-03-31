@@ -8,28 +8,27 @@ export const AuthContext = createContext();
 export const AuthProvider = ({ children }) => { // chilren = app now 
   const [user, setUser] = useState(null); // Stores user data (null if not logged in)
   const [loading, setLoading] = useState(true); // Tracks initial authentication check
+const checkAuth = async () => {
+    try {
+      const response = await axios.get('http://localhost:5000/auth/me', {
+        withCredentials: true, 
+      });
+      setUser(response.data.data); 
+    } catch (err) {
+      setUser(null); 
+    } finally {
+      setLoading(false); 
+    }
+  };
 
   useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        // Check if user has a valid session/cookie
-        const response = await axios.get('http://localhost:5000/auth/me', {
-          withCredentials: true, 
-        });
-        setUser(response.data.data); // Valid session: store user data
-      } catch (err) {
-        setUser(null); // Invalid session or no cookie: clear user data
-      } finally {
-        setLoading(false); // Done checking, stop loading
-      }
-    };
-
-    fetchUser();
+   
+    checkAuth();
   }, []); // Empty array ensures this runs ONLY once on initial app load
 
   // 3. Broadcast the state to all wrapped components
   return (
-    <AuthContext.Provider value={{ user, setUser, loading }}>
+    <AuthContext.Provider value={{ user, setUser, loading, checkAuth }}>
       {children}
     </AuthContext.Provider>
   );

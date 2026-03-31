@@ -84,13 +84,14 @@ const login = async (req, res) =>{
 const me = async(req, res)=>{
     try{
         const token= req.cookies.token;
-        const decoded = jwt.verify(token, secret); // decoded store the payload
-         // token from line above, secret that what we get from .env
+        // token from line above, secret that what we get from .env
         // const userData = User.findById(decoded.id);
         // check token?
         if(!token) {
             return res.status(401).json({ msg: "no token,u r not authraized" });
         }
+        
+        const decoded = jwt.verify(token, secret); // decoded store the payload
         const userData = await User.findById(decoded.id).select("-password"); // remove password from the res
         // send user data in the res as json
         res.status(200).json({msg: "user data:", data: userData});

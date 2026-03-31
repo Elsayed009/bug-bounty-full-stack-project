@@ -1,73 +1,102 @@
-import { useState } from 'react'
-import axios from 'axios'
-import { useNavigate } from 'react-router-dom'
+import { useState, useContext } from 'react';
+import axios from 'axios';
+import { useNavigate, Link } from 'react-router-dom';
+import { AuthContext } from '../Context/AuthContext';
 
 function Login() {
-  // State for form inputs
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState(''); // To display error messages neatly
   
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+  // Getting setUser from our "broadcasting station" (Context) to update the global app state
+  const { setUser } = useContext(AuthContext); 
 
   const handleSubmit = async (e) => {
-    // Prevent default form submission behavior
-    e.preventDefault()
+    e.preventDefault();
+    setError(''); // Clear previous errors
     
     try {
-      // Step 1: Send login credentials to get the token in cookies
+      // 1. Send login credentials to get the token in Cookies
       await axios.post('http://localhost:5000/auth/login', 
         { email, password },
         { withCredentials: true }
-      )
+      );
 
-      // Step 2: Fetch current user data to determine their role
+      // 2. Fetch current user data to determine their Role
       const res = await axios.get('http://localhost:5000/auth/me', {
         withCredentials: true
-      })
+      });
 
-      // Step 3: Extract the role from the response
-      const userRole = res.data.data.role
+      // 3. Update the Context immediately with the new data
+      const userData = res.data.data;
+      setUser(userData); 
 
-      // Step 4: Navigate to the appropriate dashboard based on the role
-      if (userRole === 'admin') {
-        navigate('/admin')
-      } else if (userRole === 'company') {
-        navigate('/company')
-      } else if (userRole === 'hunter') {
-        navigate('/hunter')
-      }
+      // 4. Dynamic routing to the appropriate dashboard
+      navigate(`/${userData.role}`);
 
     } catch (err) {
-      // Handle potential errors gracefully
-      alert(err.response?.data?.msg || "An error occurred during login")
+      // Catch the error and display it to the user
+      setError(err.response?.data?.msg || "An error occurred during login");
     }
-  }
+  };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input 
-        type="email" 
-        placeholder="Email" 
-        onChange={(e) => setEmail(e.target.value)} 
-      />
-      <input 
-        type="password" 
-        placeholder="Password"
-        onChange={(e) => setPassword(e.target.value)} 
-      />
-      <button type="submit">Login</button>
-    </form>
-  )
+    <div className="container mt-5">
+      <div className="row justify-content-center">
+        <div className="col-md-6 col-lg-5">
+          <div className="card shadow-sm border-0">
+            <div className="card-body p-5">
+              <div className="text-center mb-4">
+                <h2 className="fw-bold">Welcome Back 🛡️</h2>
+                <p className="text-muted">Login to your Bug Bounty account</p>
+              </div>
+
+              {/* Display error message if it exists */}
+              {error && <div className="alert alert-danger py-2">{error}</div>}
+
+              <form onSubmit={handleSubmit}>
+                <div className="mb-3">
+                  <label className="form-label fw-medium">Email Address</label>
+                  <input 
+                    type="email" 
+                    className="form-control"
+                    placeholder="name@example.com" 
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)} 
+                    required
+                  />
+                </div>
+
+                <div className="mb-4">
+                  <label className="form-label fw-medium">Password</label>
+                  <input 
+                    type="password" 
+                    className="form-control"
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)} 
+                    required
+                  />
+                </div>
+
+                <button type="submit" className="btn btn-dark w-100 mb-3 py-2 fw-bold">
+                  Login
+                </button>
+
+                <div className="text-center mt-3">
+                  <span className="text-muted small">Don't have an account? </span>
+                  <Link to="/register" className="text-decoration-none fw-bold small text-primary">
+                    Register here
+                  </Link>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
 
-export default Login
-
-
-// alternative 
-// for usenavigation
-// window.location.href = '/hunter'; wrang cause it make the page refresh
-
-// import { Link } from 'react-router-dom'; //not for us here cause for it to work 
-// user must hit a button and here we dont want that behavior
-// // جوه الـ return
-// <Link to="/hunter">Go to Hunter Dashboard</Link>
+export default Login;
