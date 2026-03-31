@@ -1,4 +1,11 @@
 
+
+
+
+
+
+
+
 import { useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
@@ -10,43 +17,134 @@ function Navbar({ isLanding = false }) {
 
   const handleLogout = async () => {
     try {
-      await axios.post('http://localhost:5000/auth/logout', {}, { withCredentials: true });
+      await axios.post('http://localhost:5000/auth/logout', {}, {
+        withCredentials: true
+      });
       setUser(null);
       navigate('/');
     } catch (err) {
-      console.error("Logout failed");
+      console.error("Logout failed:", err.message);
     }
   };
 
+  // ── Landing Navbar ──────────────────────────────
   if (isLanding) {
     return (
-      <nav className="navbar navbar-expand-lg navbar-dark bg-dark py-3">
-        <div className="container">
-          <Link className="navbar-brand fw-bold fs-3" to="/">🛡️ BugBounty</Link>
-          <div className="d-flex gap-3">
-            <Link to="/login" className="btn btn-outline-light">Login</Link>
-            <Link to="/register" className="btn btn-primary">Register</Link>
-          </div>
+      <nav style={{
+        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+        padding: '18px 48px',
+        borderBottom: '0.5px solid rgba(255,255,255,0.08)',
+        background: 'rgba(10,14,26,0.97)',
+        position: 'sticky', top: 0, zIndex: 100,
+        backdropFilter: 'blur(8px)'
+      }}>
+        <Link to="/" style={{ fontSize: 18, fontWeight: 500, color: '#fff', textDecoration: 'none' }}>
+          Bug<span style={{ color: '#4f8ef7' }}>Bounty</span>
+        </Link>
+        <div style={{ display: 'flex', gap: 24, alignItems: 'center' }}>
+          <Link to="/login" style={{ color: 'rgba(255,255,255,0.6)', fontSize: 14, textDecoration: 'none' }}>
+            Login
+          </Link>
+          <Link to="/register" style={{
+            background: '#4f8ef7', color: '#fff', padding: '8px 20px',
+            borderRadius: 6, fontSize: 14, fontWeight: 500, textDecoration: 'none'
+          }}>
+            Get Started
+          </Link>
         </div>
       </nav>
     );
   }
 
-  // Navbar عادي للـ logged in users
-  if (!user) return null;
-
+  // ── App Navbar ──────────────────────────────────
   return (
-    <nav className="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm py-3">
-      <div className="container">
-        <Link className="navbar-brand fw-bold fs-4" to={`/${user.role}`}>🛡️ BugBounty</Link>
-        {/* باقي الـ navbar كما هو في النسخة السابقة */}
-        {/* ... (نفس الكود القديم) */}
+    <nav className="navbar navbar-dark px-4 py-3" style={{ background: '#0a0e1a', borderBottom: '0.5px solid rgba(255,255,255,0.08)' }}>
+      <Link to={user ? `/${user.role}` : '/'} style={{ fontSize: 17, fontWeight: 500, color: '#fff', textDecoration: 'none' }}>
+        Bug<span style={{ color: '#4f8ef7' }}>Bounty</span>
+      </Link>
+      <div className="d-flex align-items-center gap-3">
+        {user && (
+          <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: 14 }}>
+            {user.name}
+            <span style={{
+              background: 'rgba(79,142,247,0.15)', color: '#4f8ef7',
+              fontSize: 11, padding: '2px 10px', borderRadius: 20,
+              marginLeft: 8, border: '0.5px solid rgba(79,142,247,0.3)'
+            }}>
+              {user.role}
+            </span>
+          </span>
+        )}
+        <button
+          onClick={handleLogout}
+          style={{
+            background: 'transparent', color: 'rgba(255,255,255,0.6)',
+            border: '0.5px solid rgba(255,255,255,0.2)',
+            padding: '6px 16px', borderRadius: 6, fontSize: 13, cursor: 'pointer'
+          }}
+        >
+          Logout
+        </button>
       </div>
     </nav>
   );
 }
 
 export default Navbar;
+
+
+// worked code origin
+
+
+
+// import { useContext } from 'react';
+// import { useNavigate, Link } from 'react-router-dom';
+// import axios from 'axios';
+// import { AuthContext } from '../Context/AuthContext';
+
+// function Navbar({ isLanding = false }) {
+//   const { user, setUser } = useContext(AuthContext);
+//   const navigate = useNavigate();
+
+//   const handleLogout = async () => {
+//     try {
+//       await axios.post('http://localhost:5000/auth/logout', {}, { withCredentials: true });
+//       setUser(null);
+//       navigate('/');
+//     } catch (err) {
+//       console.error("Logout failed");
+//     }
+//   };
+
+//   if (isLanding) {
+//     return (
+//       <nav className="navbar navbar-expand-lg navbar-dark bg-dark py-3">
+//         <div className="container">
+//           <Link className="navbar-brand fw-bold fs-3" to="/">🛡️ BugBounty</Link>
+//           <div className="d-flex gap-3">
+//             <Link to="/login" className="btn btn-outline-light">Login</Link>
+//             <Link to="/register" className="btn btn-primary">Register</Link>
+//           </div>
+//         </div>
+//       </nav>
+//     );
+//   }
+
+//   // Navbar عادي للـ logged in users
+//   if (!user) return null;
+
+//   return (
+//     <nav className="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm py-3">
+//       <div className="container">
+//         <Link className="navbar-brand fw-bold fs-4" to={`/${user.role}`}>🛡️ BugBounty</Link>
+//         {/* باقي الـ navbar كما هو في النسخة السابقة */}
+//         {/* ... (نفس الكود القديم) */}
+//       </div>
+//     </nav>
+//   );
+// }
+
+// export default Navbar;
 
 
 
